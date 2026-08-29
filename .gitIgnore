@@ -1,0 +1,7 @@
+# Archivos a ignorar en el repositorio
+New Documento de texto.txt
+*.tmp
+app*.js
+
+# Carpetas a ignorar en el repositorio
+node_modules/
