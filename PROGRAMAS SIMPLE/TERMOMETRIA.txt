@@ -1,0 +1,4 @@
+10 INPUT C
+20 LET F = (C * 9) / 5 + 32
+30 PRINT F
+40 END
