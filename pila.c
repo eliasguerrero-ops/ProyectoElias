@@ -70,23 +70,103 @@ int profundidad(char expresion[])
     return maxima;
 }
 
+int prioridad(char operador)
+{
+    if (operador == '*' || operador == '/' || operador == '%')
+    {
+        return 2;
+    }
+
+    if (operador == '+' || operador == '-')
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+void convertirPostfijo(char expresion[], char resultado[])
+{
+    int i = 0;
+    int j = 0;
+    char caracter;
+
+    cima = -1;
+
+    while (expresion[i] != '\0' && expresion[i] != '\n')
+    {
+        caracter = expresion[i];
+
+        // Acepta mayúsculas, minúsculas y números
+        if ((caracter >= 'A' && caracter <= 'Z') || 
+            (caracter >= 'a' && caracter <= 'z') || 
+            (caracter >= '0' && caracter <= '9'))
+        {
+            resultado[j] = caracter;
+            j++;
+        }
+        else if (caracter == '(')
+        {
+            push(caracter);
+        }
+        else if (caracter == ')')
+        {
+            while (cima != -1 && pila[cima] != '(')
+            {
+                resultado[j] = pop();
+                j++;
+            }
+
+            if (cima != -1)
+            {
+                pop();
+            }
+        }
+        else if (caracter == '+' || caracter == '-' ||
+                 caracter == '*' || caracter == '/' || caracter == '%')
+        {
+            while (cima != -1 && pila[cima] != '(' &&
+                   prioridad(pila[cima]) >= prioridad(caracter))
+            {
+                resultado[j] = pop();
+                j++;
+            }
+
+            push(caracter);
+        }
+
+        i++;
+    }
+
+    while (cima != -1)
+    {
+        resultado[j] = pop();
+        j++;
+    }
+
+    resultado[j] = '\0';
+}
+
 int main()
 {
     char expresion[100];
-    int resultado;
+    char resultado[100];
+    int resultadoProfundidad;
 
     printf("Escribe una expresion: ");
-    fgets(expresion, 100, stdin);
+    fgets(expresion, sizeof(expresion), stdin);
 
-    resultado = profundidad(expresion);
+    resultadoProfundidad = profundidad(expresion);
 
-    if (resultado == -1)
+    if (resultadoProfundidad == -1)
     {
         printf("Error: los parentesis no estan balanceados.\n");
     }
     else
     {
-        printf("Profundidad maxima: %d\n", resultado);
+        convertirPostfijo(expresion, resultado);
+        printf("Expresion postfija: %s\n", resultado);
+        printf("Profundidad maxima: %d\n", resultadoProfundidad);
     }
 
     return 0;
