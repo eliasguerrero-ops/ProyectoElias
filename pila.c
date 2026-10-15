@@ -160,14 +160,18 @@ int main()
 
     if (resultadoProfundidad == -1)
     {
-        printf("Error: los parentesis no estan balanceados.\n");
+    printf("Error: los parentesis no estan balanceados.\n");
     }
     else
     {
-        convertirPostfijo(expresion, resultado);
-        printf("Expresion postfija: %s\n", resultado);
-        printf("Profundidad maxima: %d\n", resultadoProfundidad);
+    printf("Profundidad maxima: %d\n", resultadoProfundidad);
+
+    convertirPostfijo(expresion, resultado);
+
+    printf("Expresion postfija: %s\n", resultado);
     }
+
+
 
     return 0;
 }
