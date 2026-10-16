@@ -85,6 +85,78 @@ int prioridad(char operador)
     return 0;
 }
 
+int validarExpresion(char expresion[])
+{
+    int i = 0;
+    int esperaOperando = 1;
+    char caracter;
+
+    while (expresion[i] != '\0' && expresion[i] != '\n')
+    {
+        caracter = expresion[i];
+
+        if (caracter == ' ')
+        {
+            i++;
+            continue;
+        }
+
+        if ((caracter >= 'A' && caracter <= 'Z') ||
+            (caracter >= 'a' && caracter <= 'z') ||
+            (caracter >= '0' && caracter <= '9'))
+        {
+            if (esperaOperando == 0)
+            {
+                return 0;
+            }
+
+            esperaOperando = 0;
+        }
+        else if (caracter == '(')
+        {
+            if (esperaOperando == 0)
+            {
+                return 0;
+            }
+
+            esperaOperando = 1;
+        }
+        else if (caracter == ')')
+        {
+            if (esperaOperando == 1)
+            {
+                return 0;
+            }
+
+            esperaOperando = 0;
+        }
+        else if (caracter == '+' || caracter == '-' ||
+                 caracter == '*' || caracter == '/' ||
+                 caracter == '%')
+        {
+            if (esperaOperando == 1)
+            {
+                return 0;
+            }
+
+            esperaOperando = 1;
+        }
+        else
+        {
+            return 0;
+        }
+
+        i++;
+    }
+
+    if (i == 0 || esperaOperando == 1)
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
 void convertirPostfijo(char expresion[], char resultado[])
 {
     int i = 0;
@@ -163,13 +235,20 @@ int main()
     printf("Error: los parentesis no estan balanceados.\n");
     }
     else
+{
+    if (validarExpresion(expresion) == 0)
     {
-    printf("Profundidad maxima: %d\n", resultadoProfundidad);
-
-    convertirPostfijo(expresion, resultado);
-
-    printf("Expresion postfija: %s\n", resultado);
+        printf("Error: la expresion esta mal escrita.\n");
     }
+    else
+    {
+        printf("Profundidad maxima: %d\n", resultadoProfundidad);
+
+        convertirPostfijo(expresion, resultado);
+
+        printf("Expresion postfija: %s\n", resultado);
+    }
+}
 
 
 
