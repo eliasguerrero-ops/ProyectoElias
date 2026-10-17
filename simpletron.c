@@ -3,7 +3,7 @@
 
 int main()
 {
-    int memory[1000];
+    int memory[100];
 
     int accumulator = 0;
     int instructionCounter = 0;
@@ -20,7 +20,7 @@ int main()
     int archivoExiste = 0;
 
     /* Inicializar memoria */
-    for (i = 0; i < 1000; i++)
+    for (i = 0; i < 100; i++)
     {
         memory[i] = 0;
     }
@@ -47,7 +47,7 @@ if (archivo != NULL)
     printf("*** Se encontro programa.simp ***\n");
     printf("*** Cargando programa desde archivo ***\n\n");
 
-    while (i < 1000 && fgets(linea, 100, archivo) != NULL)
+    while (i < 100 && fgets(linea, 100, archivo) != NULL)
     {
         if (sscanf(linea, "%d", &numero) != 1)
         {
@@ -84,7 +84,7 @@ else
     printf("*** No se encontro programa.simp ***\n");
     printf("*** Se utilizara la carga manual ***\n\n");
 
-    while (i < 1000)
+    while (i < 100)
     {
         printf("%03d ? ", i);
         scanf("%d", &numero);
@@ -119,18 +119,29 @@ else
          * Traer la siguiente instruccion
          * desde memoria.
          */
-        instructionRegister = memory[instructionCounter];
+        if (instructionCounter < 0 || instructionCounter >= 100)
+{
+    printf("\n*** ERROR FATAL ***\n");
+    printf("Contador de instrucciones fuera de rango.\n");
 
-        /*
-         * Separar la instruccion:
-         *
-         * 1009
-         *  |
-         *  +-- 10 = codigo de operacion
-         *      09 = operando
-         */
+    ejecutando = 0;
+    break;
+}
+        instructionRegister = memory[instructionCounter];
         operationCode = instructionRegister / 1000;
         operand = instructionRegister % 1000;
+
+        if (operand < 0 || operand >= 100)
+{
+    if (operationCode != 43)
+    {
+        printf("\n*** ERROR FATAL ***\n");
+        printf("Operando fuera de rango: %d\n", operand);
+
+        ejecutando = 0;
+        break;
+    }
+}
 
 
         /* ============================= */
@@ -428,7 +439,7 @@ case 40:
     printf("\n");
     printf("========== MEMORIA ==========\n");
 
-    for (i = 0; i < 1000; i++)
+    for (i = 0; i < 100; i++)
     {
         printf("%03d : %+06d\n", i, memory[i]);
     }
