@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct tableEntry
 {
@@ -132,15 +133,77 @@ void registrarSimbolo(int symbol, char type)
     insertarSimbolo(symbol, type, location);
 }
 
+void leerArchivo()
+{
+    FILE *archivo;
+    char linea[100];
+
+    archivo = fopen("programa.simple", "r");
+
+    if (archivo == NULL)
+    {
+        printf("Error: no se pudo abrir programa.simple\n");
+        return;
+    }
+
+    printf("--- CONTENIDO DEL PROGRAMA ---\n");
+
+    while (fgets(linea, sizeof(linea), archivo) != NULL)
+    {
+        printf("%s", linea);
+    }
+
+    fclose(archivo);
+}
+
+void analizarArchivo()
+{
+    FILE *archivo;
+    char linea[100];
+    char comando[20];
+    char variable;
+    int numeroLinea;
+
+    archivo = fopen("programa.simple", "r");
+
+    if (archivo == NULL)
+    {
+        printf("Error: no se pudo abrir programa.simple\n");
+        return;
+    }
+
+    while (fgets(linea, sizeof(linea), archivo) != NULL)
+    {
+        if (sscanf(linea, "%d %19s", &numeroLinea, comando) == 2)
+        {
+            printf("Linea: %d | Comando: %s", numeroLinea, comando);
+
+            registrarSimbolo(numeroLinea, 'L');
+
+            if (strcmp(comando, "input") == 0 ||
+                strcmp(comando, "print") == 0)
+            {
+                if (sscanf(linea, "%d %19s %c",
+                           &numeroLinea, comando, &variable) == 3)
+                {
+                    printf(" | Variable: %c", variable);
+                    registrarSimbolo(variable, 'V');
+                }
+            }
+
+            printf("\n");
+        }
+    }
+
+    fclose(archivo);
+
+    printf("\n");
+    mostrarTabla();
+}
+
 int main()
 {
-    registrarSimbolo(10, 'L');
-    registrarSimbolo('x', 'V');
-    registrarSimbolo(123, 'C');
-    registrarSimbolo('y', 'V');
-    registrarSimbolo('x', 'V');
-
-    mostrarTabla();
+    analizarArchivo();
 
     return 0;
 }
