@@ -11,6 +11,7 @@ typedef struct tableEntry
 } tableEntry;
 
 tableEntry *symbolTable = NULL;
+int siguienteUbicacion = 99;
 
 void insertarSimbolo(int symbol, char type, int location)
 {
@@ -47,6 +48,7 @@ void insertarSimbolo(int symbol, char type, int location)
     }
 }
 
+
 void mostrarTabla()
 {
     tableEntry *actual;
@@ -58,14 +60,30 @@ void mostrarTabla()
 
     while (actual != NULL)
     {
-        printf("%c\t%c\t%d\n",
-               actual->symbol,
-               actual->type,
-               actual->location);
+        if (actual->type == 'V')
+        {
+            printf("%c\t", actual->symbol);
+        }
+        else
+        {
+            printf("%d\t", actual->symbol);
+        }
+
+        printf("%c\t", actual->type);
+
+        if (actual->location == -1)
+        {
+            printf("-\n");
+        }
+        else
+        {
+            printf("%d\n", actual->location);
+        }
 
         actual = actual->next;
     }
 }
+
 
 tableEntry *buscarSimbolo(int symbol, char type)
 {
@@ -87,27 +105,42 @@ tableEntry *buscarSimbolo(int symbol, char type)
 }
 
 
+void registrarSimbolo(int symbol, char type)
+{
+    tableEntry *encontrado;
+    int location = -1;
+
+    encontrado = buscarSimbolo(symbol, type);
+
+    if (encontrado != NULL)
+    {
+        return;
+    }
+
+    if (type == 'V' || type == 'C')
+    {
+        if (siguienteUbicacion < 0)
+        {
+            printf("Error: no hay memoria disponible.\n");
+            return;
+        }
+
+        location = siguienteUbicacion;
+        siguienteUbicacion--;
+    }
+
+    insertarSimbolo(symbol, type, location);
+}
+
 int main()
 {
-    tableEntry *resultado;
-
-    insertarSimbolo('x', 'V', 99);
-    insertarSimbolo('y', 'V', 98);
-    insertarSimbolo('z', 'V', 97);
+    registrarSimbolo(10, 'L');
+    registrarSimbolo('x', 'V');
+    registrarSimbolo(123, 'C');
+    registrarSimbolo('y', 'V');
+    registrarSimbolo('x', 'V');
 
     mostrarTabla();
-
-    resultado = buscarSimbolo('y', 'V');
-
-    if (resultado != NULL)
-    {
-        printf("\nSe encontro la variable y.\n");
-        printf("Ubicacion: %d\n", resultado->location);
-    }
-    else
-    {
-        printf("\nNo se encontro la variable.\n");
-    }
 
     return 0;
 }
