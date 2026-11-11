@@ -1,3 +1,4 @@
 10 input x
 20 print x
-30 end
+30 goto 10
+40 end
