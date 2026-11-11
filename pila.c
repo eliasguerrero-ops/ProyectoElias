@@ -101,18 +101,38 @@ int validarExpresion(char expresion[])
             continue;
         }
 
-        if ((caracter >= 'A' && caracter <= 'Z') ||
-            (caracter >= 'a' && caracter <= 'z') ||
-            (caracter >= '0' && caracter <= '9'))
+        /* Revisar numeros completos */
+        if (caracter >= '0' && caracter <= '9')
         {
             if (esperaOperando == 0)
             {
                 return 0;
             }
 
+            while (expresion[i] >= '0' && expresion[i] <= '9')
+            {
+                i++;
+            }
+
             esperaOperando = 0;
+            continue;
         }
-        else if (caracter == '(')
+
+        /* Revisar variables de una letra */
+        if ((caracter >= 'A' && caracter <= 'Z') ||
+            (caracter >= 'a' && caracter <= 'z'))
+        {
+            if (esperaOperando == 0)
+            {
+                return 0;
+            }
+
+            i++;
+            esperaOperando = 0;
+            continue;
+        }
+
+        if (caracter == '(')
         {
             if (esperaOperando == 0)
             {
@@ -157,6 +177,8 @@ int validarExpresion(char expresion[])
     return 1;
 }
 
+
+
 void convertirPostfijo(char expresion[], char resultado[])
 {
     int i = 0;
@@ -169,12 +191,34 @@ void convertirPostfijo(char expresion[], char resultado[])
     {
         caracter = expresion[i];
 
-        // Acepta mayúsculas, minúsculas y números
-        if ((caracter >= 'A' && caracter <= 'Z') || 
-            (caracter >= 'a' && caracter <= 'z') || 
-            (caracter >= '0' && caracter <= '9'))
+        if (caracter == ' ')
+        {
+            i++;
+            continue;
+        }
+
+        /* Copiar el numero completo */
+        if (caracter >= '0' && caracter <= '9')
+        {
+            while (expresion[i] >= '0' && expresion[i] <= '9')
+            {
+                resultado[j] = expresion[i];
+                j++;
+                i++;
+            }
+
+            resultado[j] = ' ';
+            j++;
+            continue;
+        }
+
+        /* Copiar una variable */
+        if ((caracter >= 'A' && caracter <= 'Z') ||
+            (caracter >= 'a' && caracter <= 'z'))
         {
             resultado[j] = caracter;
+            j++;
+            resultado[j] = ' ';
             j++;
         }
         else if (caracter == '(')
@@ -187,6 +231,8 @@ void convertirPostfijo(char expresion[], char resultado[])
             {
                 resultado[j] = pop();
                 j++;
+                resultado[j] = ' ';
+                j++;
             }
 
             if (cima != -1)
@@ -195,12 +241,15 @@ void convertirPostfijo(char expresion[], char resultado[])
             }
         }
         else if (caracter == '+' || caracter == '-' ||
-                 caracter == '*' || caracter == '/' || caracter == '%')
+                 caracter == '*' || caracter == '/' ||
+                 caracter == '%')
         {
             while (cima != -1 && pila[cima] != '(' &&
                    prioridad(pila[cima]) >= prioridad(caracter))
             {
                 resultado[j] = pop();
+                j++;
+                resultado[j] = ' ';
                 j++;
             }
 
@@ -214,43 +263,17 @@ void convertirPostfijo(char expresion[], char resultado[])
     {
         resultado[j] = pop();
         j++;
+        resultado[j] = ' ';
+        j++;
+    }
+
+    /* Quitar el espacio final */
+    if (j > 0 && resultado[j - 1] == ' ')
+    {
+        j--;
     }
 
     resultado[j] = '\0';
 }
 
-int main()
-{
-    char expresion[100];
-    char resultado[100];
-    int resultadoProfundidad;
 
-    printf("Escribe una expresion: ");
-    fgets(expresion, sizeof(expresion), stdin);
-
-    resultadoProfundidad = profundidad(expresion);
-
-    if (resultadoProfundidad == -1)
-    {
-    printf("Error: los parentesis no estan balanceados.\n");
-    }
-    else
-{
-    if (validarExpresion(expresion) == 0)
-    {
-        printf("Error: la expresion esta mal escrita.\n");
-    }
-    else
-    {
-        printf("Profundidad maxima: %d\n", resultadoProfundidad);
-
-        convertirPostfijo(expresion, resultado);
-
-        printf("Expresion postfija: %s\n", resultado);
-    }
-}
-
-
-
-    return 0;
-}
