@@ -128,8 +128,8 @@ else
     break;
 }
         instructionRegister = memory[instructionCounter];
-        operationCode = instructionRegister / 1000;
-        operand = instructionRegister % 1000;
+        operationCode = instructionRegister / 100;
+        operand = instructionRegister % 100;
 
         if (operand < 0 || operand >= 100)
 {
@@ -193,15 +193,14 @@ else
             /* 11 - ESCRIBIR             */
             /* ------------------------- */
 
-            case 11:
+case 11:
 
-                printf("%d\n", memory[operand]);
+    printf("Entrando a WRITE. Posicion: %d\n", operand);
+    printf("Valor almacenado: %d\n", memory[operand]);
 
-                instructionCounter++;
+    instructionCounter++;
 
-                break;
-
-
+    break;
             /* ------------------------- */
             /* 20 - CARGAR               */
             /* ------------------------- */

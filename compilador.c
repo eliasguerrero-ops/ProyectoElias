@@ -376,6 +376,118 @@ int generarLet(char expresion[], char variableDestino)
     return 1;
 }
 
+int generarIf(char operandoIzq[], char operador[],
+              char operandoDer[], int destino,
+              int referencias[], int lineasDestino[],
+              int opcodesDestino[])
+{
+    int izquierda, derecha;
+    int posicionSalto;
+    int siguiente;
+
+    izquierda = obtenerUbicacionOperando(operandoIzq);
+    derecha = obtenerUbicacionOperando(operandoDer);
+
+    if (izquierda == -1 || derecha == -1)
+    {
+        printf("Error al obtener operandos de IF.\n");
+        return 0;
+    }
+
+    /* Cargar y comparar los operandos */
+    codigo[contadorCodigo++] = 2000 + izquierda;
+    codigo[contadorCodigo++] = 3100 + derecha;
+
+    siguiente = contadorCodigo;
+
+    /* Comparacion igual */
+    if (strcmp(operador, "==") == 0)
+    {
+        posicionSalto = contadorCodigo;
+        codigo[contadorCodigo++] = 4100;
+        referencias[posicionSalto] = posicionSalto;
+        lineasDestino[posicionSalto] = destino;
+        opcodesDestino[posicionSalto] = 41;
+
+        codigo[contadorCodigo++] = 4000 + (siguiente + 2);
+    }
+
+    /* Comparacion diferente */
+    else if (strcmp(operador, "!=") == 0)
+    {
+        codigo[contadorCodigo++] = 4100 + (siguiente + 2);
+
+        posicionSalto = contadorCodigo;
+        codigo[contadorCodigo++] = 4000;
+        referencias[posicionSalto] = posicionSalto;
+        lineasDestino[posicionSalto] = destino;
+        opcodesDestino[posicionSalto] = 40;
+    }
+
+    /* Menor que */
+    else if (strcmp(operador, "<") == 0)
+    {
+        posicionSalto = contadorCodigo;
+        codigo[contadorCodigo++] = 4200;
+        referencias[posicionSalto] = posicionSalto;
+        lineasDestino[posicionSalto] = destino;
+        opcodesDestino[posicionSalto] = 42;
+
+        codigo[contadorCodigo++] = 4000 + (siguiente + 2);
+    }
+
+    /* Mayor o igual */
+    else if (strcmp(operador, ">=") == 0)
+    {
+        codigo[contadorCodigo++] = 4200 + (siguiente + 2);
+
+        posicionSalto = contadorCodigo;
+        codigo[contadorCodigo++] = 4000;
+        referencias[posicionSalto] = posicionSalto;
+        lineasDestino[posicionSalto] = destino;
+        opcodesDestino[posicionSalto] = 40;
+    }
+
+    /* Mayor que */
+else if (strcmp(operador, ">") == 0)
+{
+codigo[contadorCodigo++] = 4200 + (siguiente + 3);
+codigo[contadorCodigo++] = 4100 + (siguiente + 3);
+
+    posicionSalto = contadorCodigo;
+    codigo[contadorCodigo++] = 4000;
+
+    referencias[posicionSalto] = posicionSalto;
+    lineasDestino[posicionSalto] = destino;
+    opcodesDestino[posicionSalto] = 40;
+}
+    /* Menor o igual */
+    else if (strcmp(operador, "<=") == 0)
+    {
+        posicionSalto = contadorCodigo;
+        codigo[contadorCodigo++] = 4200;
+        referencias[posicionSalto] = posicionSalto;
+        lineasDestino[posicionSalto] = destino;
+        opcodesDestino[posicionSalto] = 42;
+
+        posicionSalto = contadorCodigo;
+        codigo[contadorCodigo++] = 4100;
+        referencias[posicionSalto] = posicionSalto;
+        lineasDestino[posicionSalto] = destino;
+        opcodesDestino[posicionSalto] = 41;
+
+        codigo[contadorCodigo++] = 4000 + (siguiente + 3);
+    }
+
+    else
+    {
+        printf("Operador de comparacion no valido: %s\n", operador);
+        return 0;
+    }
+
+    return 1;
+}
+
 void leerArchivo()
 {
     FILE *archivo;
@@ -411,6 +523,7 @@ void analizarArchivo()
     int destino;
     int referencias[100];
     int lineasDestino[100];
+    int opcodesDestino[100];
     tableEntry *entradaDestino;
 
     tableEntry *entradaLinea;
@@ -425,6 +538,7 @@ void analizarArchivo()
 {
     referencias[i] = -1;
     lineasDestino[i] = -1;
+    opcodesDestino[i] = 0;
 }
 
     archivo = fopen("programa.simple", "r");
@@ -518,6 +632,7 @@ else if (strcmp(comando, "goto") == 0)
 
 
     referencias[contadorCodigo] = contadorCodigo;
+    opcodesDestino[contadorCodigo] = 40;
 
     contadorCodigo++;
 }
@@ -569,6 +684,39 @@ else if (strcmp(comando, "let") == 0)
         printf("Error al generar la instruccion LET.\n");
     }
 }
+else if (strcmp(comando, "if") == 0)
+{
+    char operandoIzq[20];
+    char operador[3];
+    char operandoDer[20];
+    char palabraGoto[20];
+    int destino;
+
+    if (sscanf(linea, "%d %19s %19s %2s %19s %19s %d",
+               &numeroLinea, comando,
+               operandoIzq, operador, operandoDer,
+               palabraGoto, &destino) != 7)
+    {
+        printf("Error en la sintaxis de IF.\n");
+        continue;
+    }
+
+    if (strcmp(palabraGoto, "goto") != 0)
+    {
+        printf("Error: se esperaba goto despues de la condicion.\n");
+        continue;
+    }
+
+    printf("Procesando IF: %s %s %s goto %d\n",
+           operandoIzq, operador, operandoDer, destino);
+
+    if (!generarIf(operandoIzq, operador, operandoDer,
+                   destino, referencias, lineasDestino,
+                   opcodesDestino))
+    {
+        printf("No se pudo generar la condicion.\n");
+    }
+}
 else
 {
     printf("Comando aun no implementado: %s\n", comando);
@@ -588,7 +736,7 @@ for (i = 0; i < contadorCodigo; i++)
 
         if (entradaDestino != NULL)
         {
-            codigo[i] = 4000 + entradaDestino->location;
+            codigo[i] = opcodesDestino[i] * 100 + entradaDestino->location;
 
             printf("Salto a linea %d resuelto: posicion %d\n",
                    lineasDestino[i],

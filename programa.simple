@@ -1,5 +1,5 @@
 10 input x
-20 let y = x + 5
-30 let z = y * 2
-40 print z
+20 print x
+30 let x = x - 1
+40 if x > 0 goto 20
 50 end
